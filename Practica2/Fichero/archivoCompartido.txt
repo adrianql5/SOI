@@ -1,0 +1,2 @@
+Este es un mensaje del proceso padre.
+Este es un mensaje del proceso padre.

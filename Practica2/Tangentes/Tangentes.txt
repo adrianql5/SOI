@@ -1,0 +1,12 @@
+Proceso Impares: Media = -2.478971615569740 Tiempo = 0.454097000000000 segundos Pid: 107080
+Proceso Pares: Media = 0.647612590115112 Tiempo = 0.462002000000000 segundos Pid: 107079
+Proceso 4: Media = -0.915679512727314 Tiempo = 0.462002000000000 segundos Pid: 107087
+Proceso Total: Media = -0.915679512726995 Tiempo = 0.909972000000000 segundos Pid: 107081
+
+Análisis resultados:
+Media hijo 3: -0.915679512726995
+Media hijo 4: -0.915679512727314
+Diferencia absoluta precisión entre hijo 3 y hijo 4: 0.000000000000319
+Tiempo hijo 3: 0.909972000000000 segundos 
+Tiempo hijo 4: 0.462002000000000 segundos
+Diferencia de tiempo entre hijo 3 e hijo 4: 0.447970000000000
