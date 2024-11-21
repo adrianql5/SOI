@@ -15,7 +15,7 @@ void crearZombie(){
     if(pid==0){
         printf("Soy el proceso Zombie antes del exec, mi pid es: %d\n",getpid());
 
-        //Execl, le pasamosla ubicacion del programa a ejecutar, 
+        //Execl, le pasamosla ubicacion del programa a ejecutar,
         //el nombre del programa
         //el argumento que le pasamos al programa
         //null inifica el final de la entrada de argumentos del progama
@@ -41,7 +41,7 @@ void crearHuerfano(){
 }
 
 int main(int argc, char const *argv[]){
-    
+
     crearZombie();
     crearHuerfano();
 

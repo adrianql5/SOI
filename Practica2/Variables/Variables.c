@@ -1,62 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
+int global_var = 10; // Variable global
 
-int variableglobal=1;
+int main() {
+    int local_var = 20; // Variable local
+    int *dynamic_var = malloc(sizeof(int)); // Variable dinámica
+    *dynamic_var = 30;
 
+    printf("Antes de fork:\n");
+    printf("  Dirección de variable global: %p, valor: %d\n", (void*)&global_var, global_var);
+    printf("  Dirección de variable local: %p, valor: %d\n", (void*)&local_var, local_var);
+    printf("  Dirección de variable dinámica: %p, valor: %d\n", (void*)dynamic_var, *dynamic_var);
 
-int main(int argc, char const *argv[]){
+    pid_t pid = fork();
 
-    int variablelocal=2;
+    if (pid < 0) {
+        perror("Error en fork");
+        free(dynamic_var);
+        exit(1);
+    } else if (pid == 0) {
+        // Proceso hijo
+        printf("\n[Hijo] Después de fork:\n");
+        printf("  Dirección de variable global: %p, valor: %d\n", (void*)&global_var, global_var);
+        printf("  Dirección de variable local: %p, valor: %d\n", (void*)&local_var, local_var);
+        printf("  Dirección de variable dinámica: %p, valor: %d\n", (void*)dynamic_var, *dynamic_var);
 
-    int * variabledinamica =(int*)malloc(sizeof(int));
-    *variabledinamica= 3;
+        // Modificar valores
+        global_var = 100;
+        local_var = 200;
+        *dynamic_var = 300;
 
-    pid_t pid=fork();
-
-    if(pid<0){
-        perror("Error al crear el hijo\n");
-        exit(EXIT_FAILURE);
-    }    
-
-    if(pid==0){
-        printf("Hola soy el proceso hijo\n");
-
-        printf("Valor variable global: %d, Valor dir memoria: %p\n", variableglobal, &variableglobal);
-        printf("Valor variable local: %d, Valor dir memoria: %p\n", variablelocal, &variablelocal);
-        printf("Valor variable dinámica: %d, Valor dir memoria: %p\n", *variabledinamica, variabledinamica);
-
-        variableglobal=10;
-        variablelocal=20;
-        *variabledinamica=30;
-
-        printf("Valor variable global modificada: %d, Valor dir memoria: %p\n", variableglobal, &variableglobal);
-        printf("Valor variable local modificada: %d, Valor dir memoria: %p\n", variablelocal, &variablelocal);
-        printf("Valor variable dinámica modificada: %d, Valor dir memoria: %p\n", *variabledinamica, variabledinamica);
-
-        printf("---------------------------------------------------------------");
+        printf("\n[Hijo] Después de modificar:\n");
+        printf("  Dirección de variable global: %p, valor: %d\n", (void*)&global_var, global_var);
+        printf("  Dirección de variable local: %p, valor: %d\n", (void*)&local_var, local_var);
+        printf("  Dirección de variable dinámica: %p, valor: %d\n", (void*)dynamic_var, *dynamic_var);
+    } else {
+        // Proceso padre
+        wait(NULL); // Espera al hijo
+        printf("\n[Padre] Después de fork (antes de cualquier modificación):\n");
+        printf("  Dirección de variable global: %p, valor: %d\n", (void*)&global_var, global_var);
+        printf("  Dirección de variable local: %p, valor: %d\n", (void*)&local_var, local_var);
+        printf("  Dirección de variable dinámica: %p, valor: %d\n", (void*)dynamic_var, *dynamic_var);
     }
 
-    else{
-        wait(NULL);
-        printf("Hola soy el proceso Padre\n");
-
-        printf("Valor dir memoria variable global: %p\n", &variableglobal);
-        printf("Valor dir memoria variable local: %p\n", &variablelocal);
-        printf("Valor dir memoria variable dinamica: %p\n",  variabledinamica);
-
-
-        printf("Variables despues de que el hijo las modificase:\n");
-        printf("Valor variable global: %d \n", variableglobal);
-        printf("Valor variable local: %d\n", variablelocal);
-        printf("Valor variable dinámica: %d\n", *variabledinamica);
-
-    }
-
-
-
+    free(dynamic_var); // Liberar memoria dinámica
     return 0;
 }
+

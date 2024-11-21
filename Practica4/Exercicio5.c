@@ -28,7 +28,7 @@
 
 
 
-#define NHILOS 2
+#define NHILOS 16
 #define NITERA 1000000000
 
 
@@ -39,7 +39,7 @@ double sum_parcial[NHILOS] = {0.0};
 //Funcion que calcula la suma parcial de cada Hilo
 void *calcular_parcial(void *arg) {
     int id = *(int *)arg;
-
+    printf("Hilo %d\n",id);
     //Si es el hilo 0, calcula desde 1 hasta 10, y en funcion del numero de Hilos, pongamos 2, salta hasta 21 y así sucesivamentes
     for (long i = id * 10 + 1; i <= NITERA; i += NHILOS * 10) {
         for (long j = i; j < i + 10 && j <= NITERA; ++j) {

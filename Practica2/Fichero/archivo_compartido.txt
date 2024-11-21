@@ -1,0 +1,3 @@
+Escrito antes de fork
+Escrito desde el hijo
+Escrito desde el padre

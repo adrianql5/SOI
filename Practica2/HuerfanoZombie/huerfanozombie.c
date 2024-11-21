@@ -33,7 +33,7 @@ void crearHuerfano(){
 }
 
 int main(int argc, char const *argv[]){
-    
+
     crearZombie();
     crearHuerfano();
 
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[]){
     printf("El proceso padre PID: %d, esperando al hijo zombie ...\n", getpid());
 
 
-    
+
     int status;
 
     pid_t pidZombie=wait(&status);//esto hace que el padre espere a que termine el primer proceso
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]){
         int exit_status = WEXITSTATUS(status);//devuelve el número que pusimos en el exit
         printf("El hijo %d ha terminado con estado %d.\n", pidZombie, exit_status);
     }
-    
+
 
     printf("El proceso padre termina.\n");
 
