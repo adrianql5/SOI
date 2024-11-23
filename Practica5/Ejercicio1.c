@@ -1,6 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+ * Código escrito por:
+ *
+ * Izan Monterroso
+ *
+ * Adrián Quiroga
+ *
+ * Esperamos que las variables locales se almacenen en la pila.
+ *
+ * Las variables globales se almacenen en el segmento de datos
+ * porque han sido inicializadas (caso contrario irían al BSS,
+ * donde los datos aún no han sido inicializados).
+ *
+ * La direccion de la funcion main esperamos que se guarde en
+ * el segmento de texto(donde está el código).
+ *
+ * La variable sin inicializar también se guarda en la pila,
+ * porque  a diferencia de las globales, no se iniciala a 0 por defecto,
+ * por lo que su contenido es indefinido
+ */
+
+
 float var1=16.5;
 int var2=8954;
 double var3=18.95;
