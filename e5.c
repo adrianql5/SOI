@@ -13,11 +13,9 @@ void manejador(int señal) {
     // Manejador de señales vacío, solo para sincronización
 }
 
-
 char* procesarMayusculasYHuecos(const char *archivo_entrada, int inicio, int final) {
     int j = 0;
-    size_t capacidad = (final - inicio + 1); // Capacidad inicial del buffer
-    char *buffer = (char*)malloc(capacidad * sizeof(char));
+    char *buffer = (char*)malloc((final - inicio + 1) * sizeof(char));
     if (!buffer) {
         perror("Error al asignar memoria");
         exit(EXIT_FAILURE);
@@ -25,50 +23,24 @@ char* procesarMayusculasYHuecos(const char *archivo_entrada, int inicio, int fin
 
     for (int i = inicio; i < final; i++) {
         if (isupper(archivo_entrada[i])) {
-            // Agregar letra mayúscula
-            if (j >= capacidad) {
-                capacidad *= 2; // Incrementar capacidad
-                buffer = realloc(buffer, capacidad * sizeof(char));
+            buffer[j++] = archivo_entrada[i];
+        } else if (isdigit(archivo_entrada[i])) {
+            int repeticiones = archivo_entrada[i] - '0';
+            for (int k = 0; k < repeticiones; k++) {
+                buffer = realloc(buffer, (j + 1) * sizeof(char));
                 if (!buffer) {
                     perror("Error al reasignar memoria");
                     exit(EXIT_FAILURE);
-                }
-            }
-            buffer[j++] = archivo_entrada[i];
-        } else if (isdigit(archivo_entrada[i])) {
-            // Agregar repeticiones de '9'
-            int repeticiones = archivo_entrada[i] - '0';
-            for (int k = 0; k < repeticiones; k++) {
-                if (j >= capacidad) {
-                    capacidad *= 2; // Incrementar capacidad
-                    buffer = realloc(buffer, capacidad * sizeof(char));
-                    if (!buffer) {
-                        perror("Error al reasignar memoria");
-                        exit(EXIT_FAILURE);
-                    }
                 }
                 buffer[j++] = '9';
             }
         } else {
-            // Agregar cualquier otro carácter
-            if (j >= capacidad) {
-                capacidad *= 2; // Incrementar capacidad
-                buffer = realloc(buffer, capacidad * sizeof(char));
-                if (!buffer) {
-                    perror("Error al reasignar memoria");
-                    exit(EXIT_FAILURE);
-                }
-            }
             buffer[j++] = archivo_entrada[i];
         }
     }
-
     buffer[j] = '\0'; // Agregar terminador de cadena
     return buffer;
 }
-
-
-
 
 void cambiarNuevesPorAsteriscos(char *buffer) {
     for (int i = 0; i < strlen(buffer); i++) {
