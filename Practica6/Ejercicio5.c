@@ -10,9 +10,10 @@
 #include <sys/wait.h>
 
 void manejador(int senal) {
+
 }
 
-pid_t hijo;
+
 
 int calcularLongSalida(char *mapaEntrada, int longitudEntrada) {
     int longitudSalida = longitudEntrada;
@@ -24,9 +25,11 @@ int calcularLongSalida(char *mapaEntrada, int longitudEntrada) {
     return longitudSalida;
 }
 
-void procesarMayusculasYEspacios(char *mapaEntrada, char *buffer, int longitudEntrada, int longitudSalida) {
+void procesarMayusculasYEspacios(char *mapaEntrada, char *buffer, int longitudEntrada, int longitudSalida, int hijo) {
     memset(buffer, 0, longitudSalida);
     int j = 0;
+
+    int mitad = longitudEntrada / 2;
 
     for (int i = 0; i < longitudEntrada; i++) {
         if (isupper(mapaEntrada[i])) {
@@ -35,17 +38,17 @@ void procesarMayusculasYEspacios(char *mapaEntrada, char *buffer, int longitudEn
             for (int k = 0; k < mapaEntrada[i] - '0'; k++) {
                 buffer[j++] = '9';
             }
-        } else {
+        }
+        else if (i == mitad - 1) {
+            kill(hijo, SIGUSR1);
+        }
+
+        else{
             buffer[j++] = mapaEntrada[i];
         }
 
-        if (i == (longitudEntrada / 2) - 1) {
-
-            kill(hijo, SIGUSR1);
-        }
     }
 
-    kill(hijo, SIGUSR1);
 }
 
 void procesarNumeros(char *buffer, int inicio, int fin) {
@@ -61,6 +64,8 @@ int main(int argc, char **argv) {
     struct stat statsEntrada;
     int longitudEntrada;
     char *mapaEntrada, *mapaSalida, *buffer;
+
+    int hijo;
 
     if (argc != 3) {
         printf("Error en los argumentos\n");
@@ -101,7 +106,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-
     buffer = mmap(NULL, longitudSalida, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (buffer == MAP_FAILED) {
         perror("mmap buffer");
@@ -110,23 +114,27 @@ int main(int argc, char **argv) {
 
     hijo = fork();
 
-    if (hijo == 0) { // Proceso hijo
+    int mitadSalida = longitudSalida / 2;
+
+    if (hijo == 0) {
         signal(SIGUSR1, manejador);
+        signal(SIGUSR2, manejador);
         kill(getppid(), SIGUSR2);
         pause();
-        procesarNumeros(buffer, 0, longitudSalida / 2);
-        pause();
-        procesarNumeros(buffer, longitudSalida / 2, longitudSalida);
+        procesarNumeros(buffer, 0, mitadSalida);
+
+        //pause();
+        procesarNumeros(buffer, mitadSalida, longitudSalida);
         exit(0);
     } else {
         signal(SIGUSR2, manejador);
         pause();
-        procesarMayusculasYEspacios(mapaEntrada, buffer, longitudEntrada, longitudSalida);
+        procesarMayusculasYEspacios(mapaEntrada, buffer, longitudEntrada, longitudSalida,hijo);
+        kill(hijo, SIGUSR2);
         wait(NULL);
     }
 
     memcpy(mapaSalida, buffer, longitudSalida);
-
 
     if (munmap(mapaEntrada, longitudEntrada) < 0) {
         perror("munmap Entrada");
