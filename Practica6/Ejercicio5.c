@@ -25,8 +25,7 @@ int calcularLongSalida(char *mapaEntrada, int longitudEntrada) {
     return longitudSalida;
 }
 
-void procesarMayusculasYEspacios(char *mapaEntrada, char *mapaSalida, int longitudEntrada, int longitudSalida) {
-    char *buffer = (char *)malloc(longitudSalida);
+void procesarMayusculasYEspacios(char *mapaEntrada, char *buffer, int longitudEntrada, int longitudSalida) {
     memset(buffer, 0, longitudSalida);
     int j = 0;
 
@@ -42,22 +41,18 @@ void procesarMayusculasYEspacios(char *mapaEntrada, char *mapaSalida, int longit
         }
 
         if (i == (longitudEntrada / 2) - 1) {
-            memcpy(mapaSalida, buffer, j);
+
             kill(hijo, SIGUSR1);
         }
     }
 
-
-
-    memcpy(mapaSalida , buffer, longitudSalida);
-    free(buffer);
     kill(hijo, SIGUSR1);
 }
 
-void procesarNumeros(char *mapaSalida, int inicio, int fin) {
+void procesarNumeros(char *buffer, int inicio, int fin) {
     for (int i = inicio; i < fin; i++) {
-        if (mapaSalida[i] == '9') {
-            mapaSalida[i] = '*';
+        if (buffer[i] == '9') {
+            buffer[i] = '*';
         }
     }
 }
@@ -66,7 +61,7 @@ int main(int argc, char **argv) {
     int descEntrada, descSalida;
     struct stat statsEntrada;
     int longitudEntrada;
-    char *mapaEntrada, *mapaSalida;
+    char *mapaEntrada, *mapaSalida, *buffer;
 
     if (argc != 3) {
         printf("Error en los argumentos\n");
@@ -107,22 +102,32 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+
+    buffer = mmap(NULL, longitudSalida, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (buffer == MAP_FAILED) {
+        perror("mmap buffer");
+        return 1;
+    }
+
     signal(SIGUSR1, manejador);
     hijo = fork();
 
     if (hijo == 0) { // Proceso hijo
         kill(getppid(), SIGUSR1);
         pause();
-        procesarNumeros(mapaSalida, 0, longitudSalida / 2);
+        procesarNumeros(buffer, 0, longitudSalida / 2);
         kill(getppid(), SIGUSR1);
         pause();
-        procesarNumeros(mapaSalida, longitudSalida / 2, longitudSalida);
+        procesarNumeros(buffer, longitudSalida / 2, longitudSalida);
         exit(0);
     } else {
         pause();
-        procesarMayusculasYEspacios(mapaEntrada, mapaSalida, longitudEntrada, longitudSalida);
+        procesarMayusculasYEspacios(mapaEntrada, buffer, longitudEntrada, longitudSalida);
         wait(NULL);
     }
+
+    memcpy(mapaSalida, buffer, longitudSalida);
+
 
     if (munmap(mapaEntrada, longitudEntrada) < 0) {
         perror("munmap Entrada");
@@ -131,6 +136,11 @@ int main(int argc, char **argv) {
 
     if (munmap(mapaSalida, longitudSalida) < 0) {
         perror("munmap Salida");
+        return 1;
+    }
+
+    if (munmap(buffer, longitudSalida) < 0) {
+        perror("munmap buffer");
         return 1;
     }
 
