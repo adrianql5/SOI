@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 
 void manejador(int sig){
+    printf("A");
 }
 
 pid_t hijo;
@@ -27,7 +28,7 @@ int calcularLongSalida(char * mapaEntrada, int longitudEntrada){
 
 
 void procesarMayusculasYEspacios(char *mapaEntrada, char *mapaSalida, int longitudEntrada, int longitudSalida){
-    char *buffer;
+    char *buffer = (char *)malloc(longitudSalida);
     memset(buffer,0,longitudSalida);
     int j = 0;
 
@@ -110,16 +111,18 @@ int main(int argc, char ** argv){
 
     int longitudSalida = calcularLongSalida(mapaEntrada, longitudEntrada);
 
+    if (ftruncate(descSalida, longitudSalida) < 0) {
+        perror("ftruncate");
+        return 1;
+    }
+
     mapaSalida = mmap(NULL, longitudSalida, PROT_WRITE|PROT_WRITE, MAP_SHARED, descSalida, 0);
     if(mapaSalida == MAP_FAILED){
         perror("mmap Salida");
         return 1;
     }
 
-    if (signal(SIGUSR1, manejador) == SIG_ERR){
-        perror("signal 1");
-        return 1;
-    }
+    signal(SIGUSR1, manejador);
 
     hijo = fork();
     if(hijo == 0){
@@ -133,7 +136,7 @@ int main(int argc, char ** argv){
     }
 
     else{
-        pause();
+
         procesarMayusculasYEspacios(mapaEntrada, mapaSalida, longitudEntrada, longitudSalida);
         wait(NULL);
 
