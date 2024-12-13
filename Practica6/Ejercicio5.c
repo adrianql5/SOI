@@ -39,7 +39,8 @@ void procesarMayusculasYEspacios(char *mapaEntrada, char *buffer, int longitudEn
                 buffer[j++] = '9';
             }
         }
-        else if (i == mitad - 1) {
+        else if (i == mitad) {
+            buffer[j++] = mapaEntrada[i];
             kill(hijo, SIGUSR1);
         }
 
@@ -120,8 +121,10 @@ int main(int argc, char **argv) {
         signal(SIGUSR1, manejador);
         signal(SIGUSR2, manejador);
         kill(getppid(), SIGUSR2);
+
         pause();
         procesarNumeros(buffer, 0, mitadSalida);
+
 
         //pause();
         procesarNumeros(buffer, mitadSalida, longitudSalida);
