@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
         procesarNumeros(buffer, 0, mitadSalida);
 
 
-        //pause();
+        pause();
         procesarNumeros(buffer, mitadSalida, longitudSalida);
         exit(0);
     } else {
