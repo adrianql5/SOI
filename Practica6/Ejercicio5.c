@@ -9,8 +9,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-void manejador(int sig) {
-    // Maneja señales pero no realiza ninguna acción específica
+void manejador(int senal) {
 }
 
 pid_t hijo;
@@ -109,18 +108,18 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    signal(SIGUSR1, manejador);
     hijo = fork();
 
     if (hijo == 0) { // Proceso hijo
-        kill(getppid(), SIGUSR1);
+        signal(SIGUSR1, manejador);
+        kill(getppid(), SIGUSR2);
         pause();
         procesarNumeros(buffer, 0, longitudSalida / 2);
-        kill(getppid(), SIGUSR1);
         pause();
         procesarNumeros(buffer, longitudSalida / 2, longitudSalida);
         exit(0);
     } else {
+        signal(SIGUSR2, manejador);
         pause();
         procesarMayusculasYEspacios(mapaEntrada, buffer, longitudEntrada, longitudSalida);
         wait(NULL);
